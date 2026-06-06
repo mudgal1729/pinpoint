@@ -3,12 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import { AgentsSection } from "@/components/AgentsSection";
 import { BrandHeader } from "@/components/BrandHeader";
+import { DemoCase } from "@/components/DemoCase";
 import { IssueMap } from "@/components/IssueMap";
-import { MetaStrip } from "@/components/MetaStrip";
-import { OperatorActions } from "@/components/OperatorActions";
 import { OrchestratorDecisions } from "@/components/OrchestratorDecisions";
 import { Problem } from "@/components/Problem";
-import { StatusBanner } from "@/components/StatusBanner";
 import { Stepper } from "@/components/Stepper";
 import { Twist } from "@/components/Twist";
 import { caseContext } from "@/lib/case";
@@ -152,7 +150,7 @@ export default function DashboardPage() {
 
         <OrchestratorDecisions />
 
-        <OperatorActions
+        <DemoCase
           derived={derived}
           onCallSender={handleCallSender}
           onCallRecipient={handleCallRecipient}
@@ -160,10 +158,6 @@ export default function DashboardPage() {
           onEscalate={handleEscalate}
           onReset={handleReset}
         />
-
-        <StatusBanner derived={derived} />
-
-        <MetaStrip />
 
         <div className="grid grid-cols-2 border-t border-[var(--line)]">
           <div className="relative min-h-[280px] border-r border-[var(--line)]">
