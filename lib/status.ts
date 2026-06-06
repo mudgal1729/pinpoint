@@ -16,13 +16,10 @@ export type Status =
   | "RESOLVED"
   | "CALLBACK_SCHEDULED";
 
-export type Tone = "grey" | "amber" | "green" | "red";
 export type StepState = "idle" | "active" | "done" | "locked";
 export type AgentTone = "faint" | "amber" | "green";
 
 export type DerivedState = {
-  badge: { text: string; tone: Tone };
-  banner: { tone: Tone; leadBold: string; rest: string };
   stepper: {
     triggered: StepState;
     orchestrator: StepState;
@@ -55,12 +52,6 @@ export function derive(status: Status): DerivedState {
   switch (status) {
     case "NEW":
       return {
-        badge: { text: "Needs action", tone: "grey" },
-        banner: {
-          tone: "grey",
-          leadBold: "Low-confidence order detected.",
-          rest: " Ready to call the sender.",
-        },
         stepper: {
           triggered: "done",
           orchestrator: "done",
@@ -82,12 +73,6 @@ export function derive(status: Status): DerivedState {
       };
     case "AGENT1_IN_CALL":
       return {
-        badge: { text: "On call", tone: "amber" },
-        banner: {
-          tone: "amber",
-          leadBold: "Agent 1 on the line with the sender",
-          rest: " — confirming the address…",
-        },
         stepper: {
           triggered: "done",
           orchestrator: "done",
@@ -109,12 +94,6 @@ export function derive(status: Status): DerivedState {
       };
     case "AGENT1_DONE":
       return {
-        badge: { text: "In progress", tone: "amber" },
-        banner: {
-          tone: "amber",
-          leadBold: "Address & order edit confirmed.",
-          rest: " Context carried, ready to call the recipient.",
-        },
         stepper: {
           triggered: "done",
           orchestrator: "done",
@@ -136,12 +115,6 @@ export function derive(status: Status): DerivedState {
       };
     case "AGENT2_IN_CALL":
       return {
-        badge: { text: "On call", tone: "amber" },
-        banner: {
-          tone: "amber",
-          leadBold: "Agent 2 resumes with Agent 1's context",
-          rest: " — confirming the route to the door…",
-        },
         stepper: {
           triggered: "done",
           orchestrator: "done",
@@ -167,13 +140,6 @@ export function derive(status: Status): DerivedState {
       };
     case "RESOLVED":
       return {
-        badge: { text: "Resolved", tone: "green" },
-        banner: {
-          tone: "green",
-          leadBold:
-            "Location resolved, route confirmed, identity protected.",
-          rest: " Order on the way.",
-        },
         stepper: {
           triggered: "done",
           orchestrator: "done",
@@ -199,12 +165,6 @@ export function derive(status: Status): DerivedState {
       };
     case "CALLBACK_SCHEDULED":
       return {
-        badge: { text: "Escalated", tone: "red" },
-        banner: {
-          tone: "red",
-          leadBold: "Couldn't reach certainty.",
-          rest: " Callback promised; routed to a human with all context so far.",
-        },
         stepper: {
           triggered: "done",
           orchestrator: "done",

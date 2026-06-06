@@ -1,7 +1,7 @@
 "use client";
 
 import { caseContext } from "@/lib/case";
-import type { DerivedState, Tone } from "@/lib/status";
+import type { DerivedState } from "@/lib/status";
 import { SectionLabel } from "./DetailHeader";
 
 type Props = {
@@ -13,12 +13,6 @@ type Props = {
   onReset: () => void;
 };
 
-// Part 3: the operator's workspace for the demo case. Merges the
-// previously separate Operator actions, Status banner, and Order summary
-// sections into one. Single surface-2 inset, single section label, three
-// internal subrows (CTAs at top, live status as the visual centerpiece,
-// order facts at the bottom) all sharing the same background and
-// padding so they read as one coherent unit.
 export function DemoCase({
   derived,
   onCallSender,
@@ -29,7 +23,6 @@ export function DemoCase({
 }: Props) {
   const { order, sender, recipient, address } = caseContext;
   const amount = `₹${order.amount.toLocaleString("en-IN")}`;
-  const tone = tonePalette[derived.banner.tone];
 
   return (
     <div className="px-[28px] py-[22px]">
@@ -54,17 +47,6 @@ export function DemoCase({
             <ResetIcon />
           </IconButton>
         </div>
-      </div>
-
-      {/* Live status pill (tone-tinted; the visual centerpiece) */}
-      <div
-        className={`mb-4 flex items-center gap-3 rounded-[10px] border ${tone.border} ${tone.bg} px-[14px] py-[10px] text-[13px] text-[var(--ink)]`}
-      >
-        <span className={`h-2 w-2 flex-none rounded-full ${tone.dot}`} />
-        <span>
-          <strong className="font-semibold">{derived.banner.leadBold}</strong>
-          {derived.banner.rest}
-        </span>
       </div>
 
       {/* Order facts row */}
@@ -99,32 +81,6 @@ export function DemoCase({
     </div>
   );
 }
-
-const tonePalette: Record<
-  Tone,
-  { bg: string; border: string; dot: string }
-> = {
-  grey: {
-    bg: "bg-[var(--surface)]",
-    border: "border-[var(--line-2)]",
-    dot: "bg-[var(--line-2)]",
-  },
-  amber: {
-    bg: "bg-[var(--amber-bg)]",
-    border: "border-[oklch(0.88_0.06_80)]",
-    dot: "bg-[var(--amber)]",
-  },
-  green: {
-    bg: "bg-[var(--green-bg)]",
-    border: "border-[oklch(0.82_0.06_152)]",
-    dot: "bg-[var(--green)]",
-  },
-  red: {
-    bg: "bg-[var(--red-bg)]",
-    border: "border-[oklch(0.85_0.05_32)]",
-    dot: "bg-[var(--red)]",
-  },
-};
 
 function Item({
   label,
