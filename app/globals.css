@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+
+  /* Operator-console design tokens (OKLCH). Source: design_handoff_pinpoint_dashboard/. */
+  --bg:        oklch(0.967 0.003 255);
+  --surface:   oklch(0.998 0.001 255);
+  --surface-2: oklch(0.978 0.003 255);
+  --surface-3: oklch(0.962 0.004 255);
+  --ink:       oklch(0.275 0.018 264);
+  --ink-2:     oklch(0.235 0.020 264);
+  --muted:     oklch(0.520 0.015 262);
+  --faint:     oklch(0.630 0.013 262);
+  --line:      oklch(0.912 0.006 262);
+  --line-2:    oklch(0.875 0.008 262);
+
+  --amber:    oklch(0.72 0.125 66);
+  --amber-bg: oklch(0.952 0.034 78);
+  --green:    oklch(0.595 0.108 155);
+  --green-bg: oklch(0.955 0.034 158);
+  --red:      oklch(0.575 0.170 26);
+  --red-bg:   oklch(0.953 0.034 30);
+
+  --r-lg: 14px;
+  --r-md: 10px;
+  --r-sm: 8px;
+  --shadow-sm: 0 1px 2px oklch(0.4 0.03 264 / 0.05);
+  --shadow: 0 1px 2px oklch(0.4 0.03 264 / 0.05),
+            0 8px 24px -14px oklch(0.4 0.03 264 / 0.20);
+}
+
+html,
+body {
+  background-color: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans, "Helvetica Neue"), Helvetica, Arial,
+    sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Amber pulse used on active stepper nodes and the "Calling…" agent dot. */
+@keyframes pinpoint-pulse-amber {
+  0% {
+    box-shadow: 0 0 0 0 oklch(0.72 0.125 66 / 0.55);
+  }
+  70% {
+    box-shadow: 0 0 0 6px oklch(0.72 0.125 66 / 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 oklch(0.72 0.125 66 / 0);
+  }
+}
+
+.pinpoint-pulse-amber {
+  animation: pinpoint-pulse-amber 1.5s infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pinpoint-pulse-amber {
+    animation: none;
+  }
+}

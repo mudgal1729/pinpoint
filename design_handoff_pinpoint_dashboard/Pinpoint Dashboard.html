@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pinpoint — Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    /* cool neutral SaaS palette */
+    --bg:        oklch(0.967 0.003 255);
+    --surface:   oklch(0.998 0.001 255);
+    --surface-2: oklch(0.978 0.003 255);
+    --surface-3: oklch(0.962 0.004 255);
+    --ink:       oklch(0.275 0.018 264);
+    --ink-2:     oklch(0.235 0.020 264);
+    --muted:     oklch(0.520 0.015 262);
+    --faint:     oklch(0.630 0.013 262);
+    --line:      oklch(0.912 0.006 262);
+    --line-2:    oklch(0.875 0.008 262);
+
+    --amber:    oklch(0.72 0.125 66);
+    --amber-bg: oklch(0.952 0.034 78);
+    --green:    oklch(0.595 0.108 155);
+    --green-bg: oklch(0.955 0.034 158);
+    --red:      oklch(0.575 0.170 26);
+    --red-bg:   oklch(0.953 0.034 30);
+    --blue:     oklch(0.56 0.115 256);
+
+    --r-lg: 14px;
+    --r-md: 10px;
+    --r-sm: 8px;
+    --shadow-sm: 0 1px 2px oklch(0.4 0.03 264 / 0.05);
+    --shadow: 0 1px 2px oklch(0.4 0.03 264 / 0.04), 0 8px 24px -14px oklch(0.4 0.03 264 / 0.20);
+    --sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --display: "Space Grotesk", "Helvetica Neue", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  body { font-family: var(--sans); color: var(--ink); background: var(--bg); line-height: 1.5; }
+
+  .app { display: flex; min-height: 100vh; }
+  .label { font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: 0.13em; text-transform: uppercase; color: var(--faint); }
+
+  /* ===================== SIDEBAR ===================== */
+  .sidebar {
+    width: 238px; flex: none; position: sticky; top: 0; height: 100vh;
+    background: var(--surface); border-right: 1px solid var(--line);
+    display: flex; flex-direction: column; padding: 20px 16px;
+  }
+  .side-logo { display: flex; align-items: center; gap: 11px; padding: 4px 8px 22px; }
+  .side-logo .pin { width: 34px; height: 34px; flex: none; display: grid; place-items: center; background: var(--ink-2); border-radius: 10px; }
+  .side-logo .pin svg { width: 17px; height: 17px; }
+  .side-logo .nm { font-family: var(--display); font-weight: 600; font-size: 19px; letter-spacing: -0.02em; }
+  .side-logo .env { font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); border: 1px solid var(--line-2); border-radius: 5px; padding: 1px 5px; margin-left: auto; }
+
+  .side-nav { display: flex; flex-direction: column; gap: 2px; }
+  .side-sec { padding: 14px 8px 6px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 11px;
+    padding: 9px 10px; border-radius: 9px; cursor: pointer;
+    font-size: 13.5px; font-weight: 500; color: var(--muted); text-decoration: none;
+    transition: background .15s, color .15s;
+  }
+  .nav-item svg { width: 17px; height: 17px; flex: none; opacity: 0.85; }
+  .nav-item .ct { margin-left: auto; font-family: var(--mono); font-size: 10.5px; color: var(--faint); background: var(--surface-3); border-radius: 6px; padding: 1px 6px; }
+  .nav-item:hover { background: var(--surface-2); color: var(--ink); }
+  .nav-item.active { background: var(--surface-3); color: var(--ink); font-weight: 600; }
+  .nav-item.active svg { opacity: 1; color: var(--ink); }
+
+  .side-user { margin-top: auto; display: flex; align-items: center; gap: 11px; padding: 10px 8px 4px; border-top: 1px solid var(--line); margin-top: auto; }
+  .side-user .ua { width: 32px; height: 32px; flex: none; border-radius: 50%; background: var(--blue); color: #fff; display: grid; place-items: center; font-family: var(--display); font-weight: 600; font-size: 13px; }
+  .side-user .un { font-size: 13px; font-weight: 600; }
+  .side-user .ur { font-size: 11px; color: var(--faint); }
+
+  /* ===================== MAIN ===================== */
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+  .topbar {
+    position: sticky; top: 0; z-index: 30;
+    display: flex; align-items: center; gap: 16px;
+    padding: 0 28px; height: 60px;
+    background: oklch(0.967 0.003 255 / 0.82); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+  }
+  .crumbs { display: flex; align-items: center; gap: 9px; font-size: 14px; }
+  .crumbs .c-dim { color: var(--faint); }
+  .crumbs .c-sep { color: var(--line-2); }
+  .crumbs .c-cur { font-weight: 600; font-family: var(--mono); font-size: 13px; }
+  .top-right { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+  .search { display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 12px; border: 1px solid var(--line-2); border-radius: 9px; background: var(--surface); color: var(--faint); font-size: 12.5px; width: 220px; }
+  .search svg { width: 15px; height: 15px; }
+  .search .kbd { margin-left: auto; font-family: var(--mono); font-size: 10px; border: 1px solid var(--line-2); border-radius: 4px; padding: 0 4px; }
+  .live { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--muted); }
+  .live .ld { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 0 oklch(0.595 0.108 155 / 0.5); animation: pulse-g 2.4s infinite; }
+  @keyframes pulse-g { 0% { box-shadow: 0 0 0 0 oklch(0.595 0.108 155 / 0.45); } 70% { box-shadow: 0 0 0 6px oklch(0.595 0.108 155 / 0); } 100% { box-shadow: 0 0 0 0 oklch(0.595 0.108 155 / 0); } }
+
+  .content { padding: 24px 28px 40px; display: flex; flex-direction: column; gap: 20px; }
+
+  /* ===================== KPI STRIP ===================== */
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .kpi { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 16px 18px; box-shadow: var(--shadow-sm); }
+  .kpi .k-top { display: flex; align-items: center; justify-content: space-between; }
+  .kpi .k-ico { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; background: var(--surface-3); color: var(--muted); }
+  .kpi .k-ico svg { width: 15px; height: 15px; }
+  .kpi .k-val { font-family: var(--display); font-weight: 600; font-size: 27px; letter-spacing: -0.02em; color: var(--ink); margin-top: 14px; line-height: 1; }
+  .kpi .k-val.dash { color: var(--line-2); }
+  .kpi .k-lab { font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+  .kpi .k-cap { font-size: 11px; color: var(--faint); margin-top: 2px; }
+
+  /* ===================== WORKSPACE ===================== */
+  .workspace { display: grid; grid-template-columns: 340px 1fr; gap: 20px; align-items: start; }
+
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow-sm); }
+  .card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 15px 18px; border-bottom: 1px solid var(--line); }
+  .card-head h2 { font-family: var(--display); font-weight: 600; font-size: 15px; }
+  .card-head .ct { font-family: var(--mono); font-size: 11px; color: var(--faint); background: var(--surface-3); border-radius: 6px; padding: 2px 7px; }
+
+  /* ---- queue (master) ---- */
+  .queue { position: sticky; top: 76px; }
+  .q-filters { display: flex; gap: 6px; padding: 11px 14px; border-bottom: 1px solid var(--line); }
+  .q-chip { font-size: 11.5px; color: var(--muted); padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line-2); background: var(--surface); cursor: pointer; }
+  .q-chip.on { background: var(--ink-2); color: #fff; border-color: var(--ink-2); }
+  .q-list { display: flex; flex-direction: column; padding: 6px; }
+  .q-row { display: flex; gap: 11px; padding: 11px 12px; border-radius: 10px; cursor: pointer; border: 1px solid transparent; transition: background .15s; }
+  .q-row:hover { background: var(--surface-2); }
+  .q-row.sel { background: var(--surface-3); border-color: var(--line-2); }
+  .q-row.sel::before { content: ""; position: absolute; }
+  .q-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; margin-top: 5px; background: var(--amber); }
+  .q-row.resolved .q-dot { background: var(--green); }
+  .q-body { flex: 1; min-width: 0; }
+  .q-id { font-family: var(--mono); font-size: 12px; font-weight: 500; color: var(--ink); }
+  .q-meta { font-size: 12px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .q-right { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex: none; }
+  .q-stat { font-size: 10.5px; font-weight: 600; letter-spacing: 0.02em; padding: 2px 8px; border-radius: 999px; white-space: nowrap; background: var(--amber-bg); color: oklch(0.5 0.1 60); }
+  .q-row.resolved .q-stat { background: var(--green-bg); color: var(--green); }
+  .q-age { font-size: 11px; color: var(--faint); font-family: var(--mono); }
+  /* skeleton placeholder rows */
+  .q-row.ph { cursor: default; opacity: 0.7; }
+  .q-row.ph:hover { background: transparent; }
+  .q-row.ph .q-dot { background: var(--line-2); }
+  .sk { background: var(--surface-3); border-radius: 5px; height: 10px; display: block; }
+  .sk.w-id { width: 96px; } .sk.w-meta { width: 130px; margin-top: 7px; height: 9px; } .sk.w-stat { width: 48px; height: 16px; border-radius: 999px; }
+
+  /* ---- detail ---- */
+  .detail { display: flex; flex-direction: column; }
+  .detail-head { padding: 18px 22px; border-bottom: 1px solid var(--line); }
+  .dh-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+  .dh-id { display: flex; align-items: center; gap: 11px; }
+  .dh-id .t { font-family: var(--display); font-weight: 600; font-size: 19px; letter-spacing: -0.01em; }
+  .dbadge { font-size: 11px; font-weight: 600; letter-spacing: 0.02em; padding: 3px 10px; border-radius: 999px; background: var(--amber-bg); color: oklch(0.5 0.1 60); }
+  .dbadge[data-tone="green"] { background: var(--green-bg); color: var(--green); }
+  .dbadge[data-tone="red"] { background: var(--red-bg); color: var(--red); }
+  .dbadge[data-tone="grey"] { background: var(--surface-3); color: var(--muted); }
+  .dh-sub { font-size: 13px; color: var(--muted); margin-top: 6px; max-width: 620px; }
+  .dh-actions { display: flex; align-items: center; gap: 8px; flex: none; }
+  button.btn { font-family: var(--sans); font-size: 13px; font-weight: 500; border-radius: 9px; padding: 9px 14px; cursor: pointer; border: 1px solid transparent; transition: transform .1s, background .2s, opacity .2s; white-space: nowrap; display: inline-flex; align-items: center; gap: 7px; }
+  button.btn svg { width: 14px; height: 14px; }
+  button.btn:active { transform: translateY(1px); }
+  .btn.primary { background: var(--ink-2); color: #fff; box-shadow: var(--shadow-sm); }
+  .btn.primary:hover { background: var(--ink); }
+  .btn.ghost { background: var(--surface); color: var(--ink); border-color: var(--line-2); }
+  .btn.ghost:hover { background: var(--surface-2); }
+  .btn.danger { background: var(--surface); color: var(--red); border-color: oklch(0.85 0.06 30); }
+  .btn.danger:hover { background: var(--red-bg); }
+  .btn.icon { padding: 9px; }
+  .btn:disabled { opacity: 0.38; cursor: not-allowed; box-shadow: none; }
+  .btn:disabled:active { transform: none; }
+
+  /* progress stepper */
+  .stepper { display: flex; align-items: center; gap: 0; margin-top: 16px; }
+  .step { display: flex; align-items: center; gap: 9px; }
+  .step .sd { width: 10px; height: 10px; border-radius: 50%; background: var(--line-2); flex: none; }
+  .step .st { font-size: 12.5px; color: var(--faint); white-space: nowrap; font-weight: 500; }
+  .step-line { flex: 1; height: 1.5px; background: var(--line-2); margin: 0 12px; min-width: 18px; }
+  .step[data-state="active"] .sd { background: var(--amber); animation: pulse-a 1.5s infinite; }
+  .step[data-state="active"] .st { color: var(--ink); font-weight: 600; }
+  .step[data-state="done"] .sd { background: var(--green); }
+  .step[data-state="done"] .st { color: var(--ink); }
+  .step.fb[data-state="active"] .sd { background: var(--red); animation: none; }
+  .step.fb[data-state="active"] .st { color: var(--red); }
+  @keyframes pulse-a { 0% { box-shadow: 0 0 0 0 oklch(0.72 0.125 66 / 0.5); } 70% { box-shadow: 0 0 0 6px oklch(0.72 0.125 66 / 0); } 100% { box-shadow: 0 0 0 0 oklch(0.72 0.125 66 / 0); } }
+
+  /* status banner */
+  .banner { display: flex; align-items: center; gap: 11px; padding: 12px 22px; border-bottom: 1px solid var(--line); background: var(--surface-2); }
+  .banner .bd { width: 8px; height: 8px; border-radius: 50%; background: var(--faint); flex: none; }
+  .banner[data-tone="amber"] { background: var(--amber-bg); } .banner[data-tone="amber"] .bd { background: var(--amber); }
+  .banner[data-tone="green"] { background: var(--green-bg); } .banner[data-tone="green"] .bd { background: var(--green); }
+  .banner[data-tone="red"] { background: var(--red-bg); } .banner[data-tone="red"] .bd { background: var(--red); }
+  .banner .bt { font-size: 13px; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .banner .bt b { font-weight: 600; }
+
+  /* meta strip */
+  .meta { display: flex; flex-wrap: wrap; gap: 4px 26px; padding: 15px 22px; border-bottom: 1px solid var(--line); }
+  .meta .mi { display: flex; flex-direction: column; gap: 2px; }
+  .meta .mk { font-size: 10.5px; color: var(--faint); font-family: var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
+  .meta .mv { font-size: 13.5px; font-weight: 500; }
+  .meta .mv .gift { font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line-2); border-radius: 999px; padding: 1px 6px; margin-left: 6px; vertical-align: middle; }
+  .meta .mv .hl { border-bottom: 2px solid var(--amber); padding-bottom: 1px; }
+
+  /* detail body: map + problem/twist */
+  .dbody { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+  .map-col { position: relative; min-height: 280px; border-right: 1px solid var(--line); }
+  .map-wrap { position: absolute; inset: 0; }
+  .map { width: 100%; height: 100%; display: block; }
+  .map-btn { position: absolute; top: 14px; right: 14px; font-size: 11.5px; font-weight: 500; background: oklch(0.99 0.003 255 / 0.92); border: 1px solid var(--line-2); border-radius: 8px; padding: 5px 10px; color: var(--ink); cursor: pointer; box-shadow: var(--shadow-sm); backdrop-filter: blur(4px); }
+  .map-btn:hover { background: var(--surface); }
+  .gap-badge { position: absolute; left: 50%; top: 42%; transform: translate(-50%,-50%); font-family: var(--mono); font-size: 10.5px; color: var(--ink); background: var(--surface); border: 1px solid var(--line-2); border-radius: 999px; padding: 3px 9px; box-shadow: var(--shadow-sm); white-space: nowrap; }
+  .map-legend { position: absolute; left: 14px; bottom: 14px; display: flex; flex-direction: column; gap: 5px; background: oklch(0.99 0.003 255 / 0.92); backdrop-filter: blur(5px); border: 1px solid var(--line-2); border-radius: 9px; padding: 8px 10px; box-shadow: var(--shadow-sm); }
+  .leg { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--muted); }
+  .leg b { color: var(--ink); font-weight: 600; }
+  .leg .sw { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+  .leg .sw.correct { background: var(--green); } .leg .sw.wrong { background: var(--red); } .leg .sw.store { background: var(--ink-2); border-radius: 2px; }
+
+  .case-col { padding: 18px 22px; display: flex; flex-direction: column; }
+  .blk + .blk { margin-top: 20px; }
+  .blk-head { display: flex; align-items: center; gap: 9px; margin-bottom: 9px; }
+  .dot-tag { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+  .dot-tag.red { background: var(--red); } .dot-tag.amber { background: var(--amber); }
+  .blk-head .t { font-family: var(--display); font-weight: 600; font-size: 14px; }
+  .blk p { font-size: 13.5px; line-height: 1.5; color: var(--ink); text-wrap: pretty; }
+  .blk p + p { margin-top: 6px; }
+  .blk p .neg { color: var(--red); font-weight: 600; }
+  .blk .sub { color: var(--muted); font-size: 12.5px; margin-bottom: 10px; }
+  .blk .sub b { color: var(--ink); }
+  .opts { display: flex; flex-direction: column; gap: 6px; }
+  .opt { display: flex; align-items: center; gap: 11px; padding: 9px 11px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface); transition: border-color .3s, background .3s; }
+  .opt .onum { width: 18px; height: 18px; flex: none; border-radius: 5px; display: grid; place-items: center; font-family: var(--mono); font-size: 10px; background: var(--surface-3); color: var(--muted); border: 1px solid var(--line-2); }
+  .opt .oname { font-size: 13px; font-weight: 500; }
+  .opt .obadge { margin-left: auto; font-size: 11px; color: var(--faint); white-space: nowrap; }
+  .opt[data-chosen="true"] { border-color: var(--green); background: var(--green-bg); }
+  .opt[data-chosen="true"] .onum { background: var(--green); color: #fff; border-color: var(--green); }
+  .opt[data-chosen="true"] .obadge { color: var(--green); font-weight: 600; }
+
+  /* agents row */
+  .agents-sec { border-top: 1px solid var(--line); }
+  .agents-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 22px 4px; }
+  .agents-head .t { font-family: var(--display); font-weight: 600; font-size: 14px; }
+  .agents-head .meta-note { font-size: 12px; color: var(--faint); }
+  .agents { display: grid; grid-template-columns: 1fr 1fr; gap: 0; padding: 12px 16px 18px; }
+  .agent { padding: 8px 14px; position: relative; }
+  .agent:first-child { border-right: 1px solid var(--line); }
+  .agent-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 0 12px; }
+  .agent-who { display: flex; align-items: center; gap: 11px; }
+  .av { width: 32px; height: 32px; flex: none; border-radius: 9px; display: grid; place-items: center; font-family: var(--display); font-weight: 600; font-size: 14px; color: #fff; }
+  .agent.a1 .av { background: var(--amber); } .agent.a2 .av { background: var(--ink-2); }
+  .agent .nm { font-family: var(--display); font-weight: 600; font-size: 14px; }
+  .agent .rl { font-size: 11.5px; color: var(--muted); margin-top: 1px; }
+  .agent-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+  .lang { font-family: var(--mono); font-size: 9.5px; color: var(--muted); border: 1px solid var(--line-2); border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
+  .astat { font-size: 11px; color: var(--faint); display: flex; align-items: center; gap: 6px; }
+  .astat .asd { width: 6px; height: 6px; border-radius: 50%; background: var(--line-2); }
+  .agent[data-st="running"] .astat { color: var(--amber); } .agent[data-st="running"] .astat .asd { background: var(--amber); animation: pulse-a 1.5s infinite; }
+  .agent[data-st="done"] .astat { color: var(--green); } .agent[data-st="done"] .astat .asd { background: var(--green); }
+
+  .inherit { margin-bottom: 10px; padding: 8px 10px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 9px; font-size: 11.5px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+  .inherit svg { width: 13px; height: 13px; flex: none; color: var(--faint); }
+  .inherit b { color: var(--ink); font-weight: 600; }
+
+  .goals { display: flex; flex-direction: column; gap: 13px; }
+  .goal { display: flex; gap: 11px; }
+  .goal .gn { width: 21px; height: 21px; flex: none; border-radius: 6px; margin-top: 1px; display: grid; place-items: center; font-family: var(--mono); font-size: 10.5px; background: var(--surface-3); color: var(--muted); border: 1px solid var(--line-2); }
+  .goal .gt { font-size: 13px; font-weight: 600; }
+  .goal .gd { font-size: 12px; color: var(--muted); line-height: 1.4; margin-top: 1px; }
+  .outcome { display: flex; gap: 8px; align-items: flex-start; margin-top: 8px; padding: 8px 10px; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--line); font-size: 12px; color: var(--muted); line-height: 1.4; opacity: 0; transform: translateY(3px); transition: opacity .4s, transform .4s, background .4s, border-color .4s, color .4s; }
+  .outcome .ck { width: 15px; height: 15px; border-radius: 50%; flex: none; margin-top: 1px; display: grid; place-items: center; background: var(--line-2); transition: background .4s; }
+  .outcome .ck svg { width: 9px; height: 9px; opacity: 0; transition: opacity .3s; }
+  .outcome b { color: var(--ink); font-weight: 600; }
+  .outcome.show { opacity: 1; transform: none; background: var(--green-bg); border-color: oklch(0.85 0.05 155); color: var(--ink); }
+  .outcome.show .ck { background: var(--green); } .outcome.show .ck svg { opacity: 1; }
+
+  .agent[data-st="locked"] { opacity: 0.55; }
+  .lock-veil { display: none; position: absolute; inset: 0; z-index: 2; place-items: center; }
+  .agent[data-st="locked"] .lock-veil { display: grid; }
+  .lock-pill { background: var(--surface); border: 1px solid var(--line-2); border-radius: 999px; padding: 6px 13px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); box-shadow: var(--shadow-sm); }
+
+  @media (max-width: 1180px) {
+    .workspace { grid-template-columns: 1fr; }
+    .queue { position: static; }
+    .kpis { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 920px) {
+    .sidebar { display: none; }
+    .dbody { grid-template-columns: 1fr; }
+    .map-col { border-right: none; border-bottom: 1px solid var(--line); }
+    .agents { grid-template-columns: 1fr; }
+    .agent:first-child { border-right: none; border-bottom: 1px solid var(--line); padding-bottom: 16px; margin-bottom: 4px; }
+    .dh-actions { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ===================== SIDEBAR ===================== -->
+  <aside class="sidebar">
+    <div class="side-logo">
+      <div class="pin">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 2C7.9 2 4.5 5.3 4.5 9.4c0 5.3 6.4 11.6 7 12.2.3.3.7.3 1 0 .6-.6 7-6.9 7-12.2C19.5 5.3 16.1 2 12 2z" fill="oklch(0.998 0.001 255)"/>
+          <circle cx="12" cy="9.4" r="2.7" fill="oklch(0.235 0.020 264)"/>
+        </svg>
+      </div>
+      <span class="nm">Pinpoint</span>
+      <span class="env">Ops</span>
+    </div>
+    <nav class="side-nav">
+      <a class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="11" width="18" height="4" rx="1"/><rect x="3" y="18" width="18" height="2.5" rx="1"/></svg>
+        Cases <span class="ct">1</span>
+      </a>
+      <a class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.5 3.1-6 7-6s7 2.5 7 6"/></svg>
+        Agents
+      </a>
+      <a class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 16l3.5-4 3 2.5L20 8"/></svg>
+        Analytics
+      </a>
+      <div class="side-sec"><span class="label">Workspace</span></div>
+      <a class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 9h16l-1.4 9.5a2 2 0 0 1-2 1.5H7.4a2 2 0 0 1-2-1.5L4 9z"/><path d="M8.5 9V7a3.5 3.5 0 0 1 7 0v2"/></svg>
+        Fulfilment
+      </a>
+      <a class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L16 2H8l-.5 2.4a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6A7 7 0 0 0 3 12c0 .4 0 .8.1 1.2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2L8 22h8l.5-2.4a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2z"/></svg>
+        Settings
+      </a>
+    </nav>
+    <div class="side-user">
+      <div class="ua">PK</div>
+      <div><div class="un">P. Kapoor</div><div class="ur">Ops Console</div></div>
+    </div>
+  </aside>
+
+  <!-- ===================== MAIN ===================== -->
+  <main class="main">
+    <div class="topbar">
+      <div class="crumbs">
+        <span class="c-dim">Cases</span>
+        <span class="c-sep">/</span>
+        <span class="c-cur">#0D77101685145</span>
+      </div>
+      <div class="top-right">
+        <div class="search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+          Search cases
+          <span class="kbd">⌘K</span>
+        </div>
+        <div class="live"><span class="ld"></span> Connected</div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ===================== KPI STRIP ===================== -->
+      <section class="kpis">
+        <div class="kpi">
+          <div class="k-top">
+            <span class="label">In queue</span>
+            <span class="k-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="3" rx="1"/><rect x="3" y="11" width="18" height="3" rx="1"/><rect x="3" y="17" width="12" height="3" rx="1"/></svg></span>
+          </div>
+          <div class="k-val dash">—</div>
+          <div class="k-lab">Cases awaiting action</div>
+        </div>
+        <div class="kpi">
+          <div class="k-top">
+            <span class="label">Resolved today</span>
+            <span class="k-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 13l4 4L19 7"/></svg></span>
+          </div>
+          <div class="k-val dash">—</div>
+          <div class="k-lab">Delivered, not cancelled</div>
+        </div>
+        <div class="kpi">
+          <div class="k-top">
+            <span class="label">Recovery rate</span>
+            <span class="k-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 18L10 12l3.5 3L20 8"/><path d="M20 8h-4M20 8v4"/></svg></span>
+          </div>
+          <div class="k-val dash">—</div>
+          <div class="k-lab">Orders saved from cancellation</div>
+        </div>
+        <div class="kpi">
+          <div class="k-top">
+            <span class="label">Avg. resolution</span>
+            <span class="k-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2"/><path d="M9 2h6"/></svg></span>
+          </div>
+          <div class="k-val dash">—</div>
+          <div class="k-lab">From trigger to delivery</div>
+        </div>
+      </section>
+
+      <!-- ===================== WORKSPACE ===================== -->
+      <section class="workspace">
+
+        <!-- QUEUE (master) -->
+        <div class="card queue">
+          <div class="card-head"><h2>Case queue</h2><span class="ct">live</span></div>
+          <div class="q-filters">
+            <span class="q-chip on">Needs action</span>
+            <span class="q-chip">In progress</span>
+            <span class="q-chip">Resolved</span>
+          </div>
+          <div class="q-list">
+            <div class="q-row sel resolved" id="qActive" style="position:relative">
+              <span class="q-dot"></span>
+              <div class="q-body">
+                <div class="q-id">#0D77101685145</div>
+                <div class="q-meta">Pratapnagar, Jaipur · pin 2 km off</div>
+              </div>
+              <div class="q-right">
+                <span class="q-stat" id="qStat">In progress</span>
+                <span class="q-age">2m</span>
+              </div>
+            </div>
+            <div class="q-row ph"><span class="q-dot"></span><div class="q-body"><span class="sk w-id"></span><span class="sk w-meta"></span></div><div class="q-right"><span class="sk w-stat"></span></div></div>
+            <div class="q-row ph"><span class="q-dot"></span><div class="q-body"><span class="sk w-id"></span><span class="sk w-meta"></span></div><div class="q-right"><span class="sk w-stat"></span></div></div>
+            <div class="q-row ph"><span class="q-dot"></span><div class="q-body"><span class="sk w-id"></span><span class="sk w-meta"></span></div><div class="q-right"><span class="sk w-stat"></span></div></div>
+            <div class="q-row ph"><span class="q-dot"></span><div class="q-body"><span class="sk w-id"></span><span class="sk w-meta"></span></div><div class="q-right"><span class="sk w-stat"></span></div></div>
+          </div>
+        </div>
+
+        <!-- DETAIL -->
+        <div class="card detail">
+          <div class="detail-head">
+            <div class="dh-top">
+              <div>
+                <div class="dh-id">
+                  <span class="t">#0D77101685145</span>
+                  <span class="dbadge" id="dBadge">In progress</span>
+                </div>
+                <div class="dh-sub">Orchestrator owns the case and its state — it <b>calls the sender, then the recipient, carrying context across</b>, and escalates to a human if it can't reach certainty.</div>
+              </div>
+              <div class="dh-actions">
+                <button class="btn primary" id="btn1" type="button">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M6.5 4.5l3 1 1 3-2 1.5a11 11 0 0 0 5 5l1.5-2 3 1 1 3a2 2 0 0 1-2 2.2C12 23 4 15 4 6.5A2 2 0 0 1 6.5 4.5z"/></svg>
+                  Call sender
+                </button>
+                <button class="btn ghost" id="btn2" type="button" disabled>Call recipient</button>
+                <button class="btn danger" id="btnCb" type="button">Escalate</button>
+                <button class="btn ghost icon" id="btnReset" type="button" title="Reset case (demo)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M4 12a8 8 0 1 1 2.5 5.8"/><path d="M4 20v-4h4"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="stepper" id="stepper">
+              <div class="step" data-node="trigger" data-state="done"><span class="sd"></span><span class="st">Triggered</span></div>
+              <div class="step-line"></div>
+              <div class="step" data-node="sender" data-state="idle"><span class="sd"></span><span class="st">Sender call</span></div>
+              <div class="step-line"></div>
+              <div class="step" data-node="receiver" data-state="locked"><span class="sd"></span><span class="st">Recipient call</span></div>
+              <div class="step-line"></div>
+              <div class="step fb" data-node="end" data-state="idle"><span class="sd"></span><span class="st" data-end-label>Resolved</span></div>
+            </div>
+          </div>
+
+          <div class="banner" id="banner" data-tone="">
+            <span class="bd"></span>
+            <span class="bt" id="bannerText"><b>Low-confidence order detected.</b> Ready to call the sender.</span>
+          </div>
+
+          <div class="meta">
+            <div class="mi"><span class="mk">Item</span><span class="mv">Amul rasmalai · 1 kg</span></div>
+            <div class="mi"><span class="mk">Amount</span><span class="mv">₹450</span></div>
+            <div class="mi"><span class="mk">Gift</span><span class="mv">Ramesh → Suresh<span class="gift">sender pays</span></span></div>
+            <div class="mi"><span class="mk">Address — typed</span><span class="mv">House 142, near <span class="hl">Pannadhay Circle</span>, Pratapnagar</span></div>
+          </div>
+
+          <div class="dbody">
+            <div class="map-col">
+              <div class="map-wrap">
+                <button class="map-btn" type="button">Expand</button>
+                <svg class="map" viewBox="0 0 560 380" preserveAspectRatio="xMidYMid slice" aria-label="Map: typed address versus dropped pin, about 2 km apart">
+                  <defs>
+                    <pattern id="grid" width="56" height="56" patternUnits="userSpaceOnUse"><path d="M56 0H0V56" fill="none" stroke="oklch(0.915 0.006 262)" stroke-width="1"/></pattern>
+                  </defs>
+                  <rect width="560" height="380" fill="oklch(0.962 0.005 255)"/>
+                  <rect width="560" height="380" fill="url(#grid)"/>
+                  <path d="M0 258 L560 206" stroke="oklch(0.928 0.007 255)" stroke-width="11" fill="none" stroke-linecap="round"/>
+                  <path d="M170 0 L210 380" stroke="oklch(0.928 0.007 255)" stroke-width="11" fill="none"/>
+                  <path d="M398 0 L424 380" stroke="oklch(0.94 0.006 255)" stroke-width="7" fill="none"/>
+                  <path d="M0 116 L560 96" stroke="oklch(0.94 0.006 255)" stroke-width="6" fill="none"/>
+                  <path d="M152 158 Q300 158 432 258" stroke="oklch(0.575 0.170 26)" stroke-width="2" stroke-dasharray="6 7" fill="none" opacity="0.8"/>
+                  <g transform="translate(152 158)"><circle r="23" fill="oklch(0.595 0.108 155 / 0.13)"/><circle r="9" fill="oklch(0.595 0.108 155)" stroke="#fff" stroke-width="3"/></g>
+                  <g transform="translate(98 206)"><rect x="-7" y="-7" width="14" height="14" rx="3" fill="oklch(0.235 0.020 264)" stroke="#fff" stroke-width="2.5"/></g>
+                  <g transform="translate(432 258)"><circle r="23" fill="oklch(0.575 0.170 26 / 0.13)"/><path d="M0 -16C-7.2 -16 -13 -10.3 -13 -3.2 -13 6 0 16 0 16s13 -10 13 -19.2C13 -10.3 7.2 -16 0 -16z" fill="oklch(0.575 0.170 26)" stroke="#fff" stroke-width="2.5"/><circle cy="-3.4" r="4" fill="#fff"/></g>
+                </svg>
+                <div class="gap-badge">~2 km gap</div>
+                <div class="map-legend">
+                  <div class="leg"><span class="sw correct"></span><b>Typed address</b></div>
+                  <div class="leg"><span class="sw wrong"></span><b>Dropped pin</b></div>
+                  <div class="leg"><span class="sw store"></span><b>Fulfilling store</b></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="case-col">
+              <div class="blk">
+                <div class="blk-head"><span class="dot-tag red"></span><span class="t">The problem</span></div>
+                <p>The address is right — but the pin was dropped <span class="neg">~2 km away</span> in Pratapnagar Sector 6. Go by the pin and delivery lands at the wrong door, so today the order is <span class="neg">cancelled</span>.</p>
+              </div>
+              <div class="blk">
+                <div class="blk-head"><span class="dot-tag amber"></span><span class="t">The twist</span></div>
+                <p class="sub">The corrected spot is served by a <b>different store</b> without Amul rasmalai — so fixing the location forces an order edit. Agent 1 walks these live until one is accepted.</p>
+                <div class="opts" id="optList">
+                  <div class="opt" data-opt="1"><span class="onum">1</span><span class="oname">Haldiram rasmalai · 1 kg</span><span class="obadge">₹20 cheaper, refunded</span></div>
+                  <div class="opt" data-opt="2"><span class="onum">2</span><span class="oname">Amul rasmalai · 2 × 500 g</span><span class="obadge">same item, split</span></div>
+                  <div class="opt" data-opt="3"><span class="onum">3</span><span class="oname">Amul rasmalai · 500 g</span><span class="obadge">half size, partial refund</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AGENTS -->
+          <div class="agents-sec">
+            <div class="agents-head">
+              <span class="t">Agents on this case</span>
+              <span class="meta-note">2 voice agents · Hindi</span>
+            </div>
+            <div class="agents">
+              <section class="agent a1" id="agent1" data-st="idle">
+                <div class="agent-h">
+                  <div class="agent-who">
+                    <div class="av">1</div>
+                    <div><div class="nm">Sender Agent</div><div class="rl">Calls Ramesh — the payer</div></div>
+                  </div>
+                  <div class="agent-meta">
+                    <span class="lang">हिन्दी · Hindi</span>
+                    <span class="astat" id="a1stat"><span class="asd"></span> Ready</span>
+                  </div>
+                </div>
+                <div class="goals">
+                  <div class="goal">
+                    <span class="gn">1</span>
+                    <div style="flex:1">
+                      <div class="gt">Confirm the delivery address</div>
+                      <div class="gd">Cross-check the landmark and correct the pin.</div>
+                      <div class="outcome" data-out="a1g1"><span class="ck"><svg viewBox="0 0 12 12"><path d="M2.5 6.2l2.2 2.2 4.8-5" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span><b>House 142, Pannadhay Circle</b> confirmed — pin corrected by ~2 km.</span></div>
+                    </div>
+                  </div>
+                  <div class="goal">
+                    <span class="gn">2</span>
+                    <div style="flex:1">
+                      <div class="gt">Confirm the order edit</div>
+                      <div class="gd">A second store fulfils it; offer substitution + refund.</div>
+                      <div class="outcome" data-out="a1g2"><span class="ck"><svg viewBox="0 0 12 12"><path d="M2.5 6.2l2.2 2.2 4.8-5" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span><b>Haldiram substitute</b> accepted — ₹20 refunded.</span></div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section class="agent a2" id="agent2" data-st="locked">
+                <div class="agent-h">
+                  <div class="agent-who">
+                    <div class="av">2</div>
+                    <div><div class="nm">Receiver Agent</div><div class="rl">Calls Suresh — at the door</div></div>
+                  </div>
+                  <div class="agent-meta">
+                    <span class="lang">हिन्दी · Hindi</span>
+                    <span class="astat" id="a2stat"><span class="asd"></span> Waiting</span>
+                  </div>
+                </div>
+                <div class="inherit">
+                  <svg viewBox="0 0 24 24" fill="none"><path d="M4 12h13m0 0l-5-5m5 5l-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <span>Resumes with <b>everything Agent 1 learned</b> — never starts cold.</span>
+                </div>
+                <div class="goals">
+                  <div class="goal">
+                    <span class="gn">1</span>
+                    <div style="flex:1">
+                      <div class="gt">Confirm the route to the door</div>
+                      <div class="gd">Lane, gate colour, floor — for the partner.</div>
+                      <div class="outcome" data-out="a2g1"><span class="ck"><svg viewBox="0 0 12 12"><path d="M2.5 6.2l2.2 2.2 4.8-5" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span><b>2nd lane, blue gate, 2nd floor</b> — handed to the partner.</span></div>
+                    </div>
+                  </div>
+                  <div class="goal">
+                    <span class="gn">2</span>
+                    <div style="flex:1">
+                      <div class="gt">Protect the sender's identity</div>
+                      <div class="gd">Announce a gift; decline who sent it unless pressed.</div>
+                      <div class="outcome" data-out="a2g2"><span class="ck"><svg viewBox="0 0 12 12"><path d="M2.5 6.2l2.2 2.2 4.8-5" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span><b>Identity protected</b> — shared only the last 5 digits, on a second insist.</span></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="lock-veil"><span class="lock-pill">Unlocks after Agent 1</span></div>
+              </section>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var KEY = "pinpoint_state_v3";
+  var $ = function (s) { return document.querySelector(s); };
+  var els = {
+    stepper: $("#stepper"), a1: $("#agent1"), a2: $("#agent2"),
+    a1stat: $("#a1stat"), a2stat: $("#a2stat"),
+    btn1: $("#btn1"), btn2: $("#btn2"), btnCb: $("#btnCb"), btnReset: $("#btnReset"),
+    banner: $("#banner"), bannerText: $("#bannerText"),
+    optList: $("#optList"), endLabel: $("[data-end-label]"),
+    dBadge: $("#dBadge"), qStat: $("#qStat"), qActive: $("#qActive")
+  };
+  function step(n){ return els.stepper.querySelector('[data-node="'+n+'"]'); }
+  function out(k){ return document.querySelector('[data-out="'+k+'"]'); }
+  function opt(n){ return els.optList.querySelector('[data-opt="'+n+'"]'); }
+
+  var timers = [];
+  function clearTimers(){ timers.forEach(clearTimeout); timers = []; }
+  function after(ms, fn){ timers.push(setTimeout(fn, ms)); }
+  function banner(tone, html){ els.banner.setAttribute("data-tone", tone||""); els.bannerText.innerHTML = html; }
+  function badge(text, tone){ els.dBadge.textContent = text; els.dBadge.setAttribute("data-tone", tone||""); els.qStat.textContent = text; els.qActive.classList.toggle("resolved", tone === "green"); }
+  function save(s){ try { localStorage.setItem(KEY, s); } catch(e){} }
+  function load(){ try { return localStorage.getItem(KEY) || "idle"; } catch(e){ return "idle"; } }
+
+  function render(state){
+    clearTimers();
+    step("sender").setAttribute("data-state","idle");
+    step("receiver").setAttribute("data-state","locked");
+    step("end").setAttribute("data-state","idle");
+    els.a1.setAttribute("data-st","idle");
+    els.a2.setAttribute("data-st","locked");
+    els.a1stat.innerHTML = '<span class="asd"></span> Ready';
+    els.a2stat.innerHTML = '<span class="asd"></span> Waiting';
+    ["a1g1","a1g2","a2g1","a2g2"].forEach(function(k){ out(k).classList.remove("show"); });
+    els.optList.querySelectorAll(".opt").forEach(function(o){ o.removeAttribute("data-chosen"); });
+    opt(1).querySelector(".obadge").textContent = "₹20 cheaper, refunded";
+    els.endLabel.textContent = "Resolved";
+    els.btn1.disabled = false; els.btn2.disabled = true; els.btnCb.disabled = false;
+    els.btn1.firstChild && (els.btn1.lastChild.textContent = " Call sender");
+
+    if (state === "idle"){ badge("Needs action","grey"); banner("","<b>Low-confidence order detected.</b> Ready to call the sender."); return; }
+
+    function a1done(){
+      step("sender").setAttribute("data-state","done");
+      els.a1.setAttribute("data-st","done");
+      els.a1stat.innerHTML = '<span class="asd"></span> Call complete';
+      out("a1g1").classList.add("show"); out("a1g2").classList.add("show");
+      opt(1).setAttribute("data-chosen","true");
+      opt(1).querySelector(".obadge").textContent = "Accepted";
+    }
+    function a2done(){
+      step("receiver").setAttribute("data-state","done");
+      els.a2.setAttribute("data-st","done");
+      els.a2stat.innerHTML = '<span class="asd"></span> Call complete';
+      out("a2g1").classList.add("show"); out("a2g2").classList.add("show");
+    }
+
+    if (state === "handoff"){
+      a1done();
+      step("receiver").setAttribute("data-state","idle");
+      els.a2.setAttribute("data-st","idle");
+      els.a2stat.innerHTML = '<span class="asd"></span> Ready';
+      els.btn1.disabled = true; els.btn2.disabled = false;
+      badge("In progress","");
+      banner("amber","<b>Address &amp; order edit confirmed.</b> Context carried — ready to call the recipient.");
+      return;
+    }
+    if (state === "resolved"){
+      a1done(); a2done();
+      step("end").setAttribute("data-state","done");
+      els.endLabel.textContent = "Delivered";
+      els.btn1.disabled = true; els.btn2.disabled = true; els.btnCb.disabled = true;
+      badge("Resolved","green");
+      banner("green","<b>Location resolved, route confirmed, identity protected.</b> Order on the way.");
+      return;
+    }
+    if (state === "callback"){
+      step("end").setAttribute("data-state","active");
+      els.endLabel.textContent = "Human handoff";
+      els.btn1.disabled = true; els.btn2.disabled = true; els.btnCb.disabled = true;
+      badge("Escalated","red");
+      banner("red","<b>Couldn't reach certainty.</b> Callback promised; routed to a human with all context so far.");
+      return;
+    }
+  }
+
+  function runAgent1(){
+    clearTimers(); save("running1");
+    els.btn1.disabled = true; els.btn2.disabled = true;
+    step("sender").setAttribute("data-state","active");
+    els.a1.setAttribute("data-st","running");
+    els.a1stat.innerHTML = '<span class="asd"></span> Calling…';
+    badge("On call","");
+    banner("amber","<b>Agent 1 on the line with the sender</b> — confirming the address…");
+    after(1200, function(){ out("a1g1").classList.add("show"); });
+    after(1900, function(){
+      opt(1).setAttribute("data-chosen","true");
+      opt(1).querySelector(".obadge").textContent = "Accepted";
+      banner("amber","<b>Address locked.</b> Confirming the order edit — Haldiram substitute…");
+    });
+    after(2700, function(){ out("a1g2").classList.add("show"); });
+    after(3500, function(){ save("handoff"); render("handoff"); });
+  }
+  function runAgent2(){
+    clearTimers(); save("running2");
+    els.btn1.disabled = true; els.btn2.disabled = true;
+    step("receiver").setAttribute("data-state","active");
+    els.a2.setAttribute("data-st","running");
+    els.a2stat.innerHTML = '<span class="asd"></span> Calling…';
+    badge("On call","");
+    banner("amber","<b>Agent 2 resumes with Agent 1's context</b> — confirming the route to the door…");
+    after(1300, function(){ out("a2g1").classList.add("show"); });
+    after(2000, function(){ banner("amber","<b>Route confirmed.</b> She asks who sent it — applying the identity guardrail…"); });
+    after(2800, function(){ out("a2g2").classList.add("show"); });
+    after(3600, function(){ save("resolved"); render("resolved"); });
+  }
+
+  els.btn1.addEventListener("click", runAgent1);
+  els.btn2.addEventListener("click", runAgent2);
+  els.btnCb.addEventListener("click", function(){ clearTimers(); save("callback"); render("callback"); });
+  els.btnReset.addEventListener("click", function(){ clearTimers(); save("idle"); render("idle"); });
+
+  var boot = load();
+  if (boot === "running1") boot = "idle";
+  if (boot === "running2") boot = "handoff";
+  render(boot);
+})();
+</script>
+</body>
+</html>
