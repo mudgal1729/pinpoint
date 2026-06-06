@@ -5,6 +5,7 @@
 When a quick commerce order has a bad delivery location, today the system either cancels or burns a delivery partner's time on guesswork. Pinpoint does what a good ops person would do instead: it calls, it figures out exactly where, and it gets the order delivered.
 
 **Live dashboard:** https://pinpoint-one-gamma.vercel.app
+**Demo video** https://drive.google.com/file/d/1A-NcQqDN5UFYnfMWvZJyOuIVGNLVybci/view?usp=drive_link
 
 ## The problem
 
