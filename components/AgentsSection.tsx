@@ -1,6 +1,7 @@
 import { caseContext } from "@/lib/case";
 import type { DerivedState } from "@/lib/status";
 import { AgentCard } from "./AgentCard";
+import { SectionLabel } from "./DetailHeader";
 
 const AGENT_1_GOALS = [
   {
@@ -61,12 +62,10 @@ type Props = { derived: DerivedState };
 export function AgentsSection({ derived }: Props) {
   return (
     <section className="border-t border-[var(--line)]">
-      <header className="flex items-center justify-between px-[22px] pt-[14px] pb-[4px]">
-        <span className="font-display text-[14px] font-semibold text-[var(--ink)]">
-          Agents on this case
-        </span>
-        <span className="text-[12px] text-[var(--faint)]">
-          2 voice agents · Hindi
+      <header className="flex items-center justify-between px-[28px] pt-[16px] pb-[8px]">
+        <SectionLabel>Agents on this case</SectionLabel>
+        <span className="text-[11.5px] text-[var(--muted)]">
+          2 voice agents, Hindi
         </span>
       </header>
       <div className="grid grid-cols-2">

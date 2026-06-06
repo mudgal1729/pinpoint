@@ -25,6 +25,7 @@ export type DerivedState = {
   banner: { tone: Tone; leadBold: string; rest: string };
   stepper: {
     triggered: StepState;
+    orchestrator: StepState;
     sender: StepState;
     receiver: StepState;
     end: StepState;
@@ -62,6 +63,7 @@ export function derive(status: Status): DerivedState {
         },
         stepper: {
           triggered: "done",
+          orchestrator: "done",
           sender: "idle",
           receiver: "locked",
           end: "idle",
@@ -88,6 +90,7 @@ export function derive(status: Status): DerivedState {
         },
         stepper: {
           triggered: "done",
+          orchestrator: "done",
           sender: "active",
           receiver: "locked",
           end: "idle",
@@ -114,6 +117,7 @@ export function derive(status: Status): DerivedState {
         },
         stepper: {
           triggered: "done",
+          orchestrator: "done",
           sender: "done",
           receiver: "idle",
           end: "idle",
@@ -140,6 +144,7 @@ export function derive(status: Status): DerivedState {
         },
         stepper: {
           triggered: "done",
+          orchestrator: "done",
           sender: "done",
           receiver: "active",
           end: "idle",
@@ -171,6 +176,7 @@ export function derive(status: Status): DerivedState {
         },
         stepper: {
           triggered: "done",
+          orchestrator: "done",
           sender: "done",
           receiver: "done",
           end: "done",
@@ -201,6 +207,7 @@ export function derive(status: Status): DerivedState {
         },
         stepper: {
           triggered: "done",
+          orchestrator: "done",
           sender: "done",
           receiver: "idle",
           end: "active",

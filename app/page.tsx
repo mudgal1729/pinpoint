@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AgentsSection } from "@/components/AgentsSection";
-import { DetailHeader } from "@/components/DetailHeader";
+import { DetailHeader, Introduction } from "@/components/DetailHeader";
 import { IssueMap } from "@/components/IssueMap";
 import { MetaStrip } from "@/components/MetaStrip";
+import { OperatorActions } from "@/components/OperatorActions";
 import { OrchestratorDecisions } from "@/components/OrchestratorDecisions";
 import { Problem } from "@/components/Problem";
 import { StatusBanner } from "@/components/StatusBanner";
@@ -140,10 +141,17 @@ export default function DashboardPage() {
   const derived = derive(status);
 
   return (
-    <main className="mx-auto max-w-[1080px] px-6 py-8 lg:py-10">
+    <main className="w-full px-6 py-6 lg:px-10 lg:py-8">
+      <BrandBar />
+
       <section className="overflow-hidden rounded-[var(--r-lg)] border border-[var(--line)] bg-[var(--surface)] shadow-[var(--shadow)]">
-        <DetailHeader
-          orderId={orderId}
+        <DetailHeader orderId={orderId} derived={derived} />
+
+        <Introduction />
+
+        <OrchestratorDecisions />
+
+        <OperatorActions
           derived={derived}
           onCallSender={handleCallSender}
           onCallRecipient={handleCallRecipient}
@@ -151,9 +159,12 @@ export default function DashboardPage() {
           onEscalate={handleEscalate}
           onReset={handleReset}
         />
+
         <StatusBanner derived={derived} />
+
         <MetaStrip />
-        <div className="grid grid-cols-2">
+
+        <div className="grid grid-cols-2 border-t border-[var(--line)]">
           <div className="relative min-h-[280px] border-r border-[var(--line)]">
             <div className="absolute inset-0">
               <IssueMap />
@@ -170,15 +181,45 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
-          <div className="p-[18px_22px]">
+          <div className="p-[20px_28px]">
             <Problem />
             <Twist option1Chosen={derived.option1Chosen} />
           </div>
         </div>
-        <OrchestratorDecisions />
+
         <AgentsSection derived={derived} />
       </section>
     </main>
+  );
+}
+
+function BrandBar() {
+  return (
+    <header className="mb-6 flex items-center gap-[14px]">
+      <div className="grid h-[42px] w-[42px] flex-none place-items-center rounded-[12px] bg-[var(--ink-2)]">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          className="h-5 w-5"
+          aria-hidden
+        >
+          <path
+            d="M12 2C7.9 2 4.5 5.3 4.5 9.4c0 5.3 6.4 11.6 7 12.2.3.3.7.3 1 0 .6-.6 7-6.9 7-12.2C19.5 5.3 16.1 2 12 2z"
+            fill="var(--bg)"
+          />
+          <circle cx="12" cy="9.4" r="2.7" fill="var(--ink-2)" />
+        </svg>
+      </div>
+      <div>
+        <h1 className="font-display text-[27px] font-semibold leading-none tracking-[-0.02em] text-[var(--ink)]">
+          Pinpoint
+        </h1>
+        <p className="mt-[6px] text-[13px] text-[var(--muted)]">
+          When the address and the map pin disagree, we resolve where exactly
+          and deliver, instead of cancelling.
+        </p>
+      </div>
+    </header>
   );
 }
 

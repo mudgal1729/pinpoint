@@ -4,35 +4,34 @@ type Props = { derived: DerivedState };
 
 type Node = {
   title: string;
-  role: string;
   state: StepState;
   red?: boolean;
+  // The orchestrator node carries a subtle ink-2 tint to mark it as the
+  // brain that owns the case, even when settled.
+  brain?: boolean;
 };
 
 export function Stepper({ derived }: Props) {
   const nodes: Node[] = [
     {
       title: "Low-confidence order",
-      role: "pin ~2 km off",
       state: derived.stepper.triggered,
     },
     {
+      title: "Orchestrator",
+      state: derived.stepper.orchestrator,
+      brain: true,
+    },
+    {
       title: "Sender call",
-      role: "Agent 1",
       state: derived.stepper.sender,
     },
     {
       title: "Recipient call",
-      role: "Agent 2",
       state: derived.stepper.receiver,
     },
     {
       title: derived.stepper.endLabel,
-      role: derived.stepper.endRed
-        ? "callback promised"
-        : derived.stepper.end === "done"
-          ? "order on the way"
-          : "or human handoff",
       state: derived.stepper.end,
       red: derived.stepper.endRed,
     },
@@ -40,7 +39,7 @@ export function Stepper({ derived }: Props) {
 
   const items = nodes.flatMap((node, i) => {
     const cells = [
-      <li key={`node-${i}`}>
+      <li key={`node-${i}`} className="flex">
         <Node node={node} />
       </li>,
     ];
@@ -49,7 +48,7 @@ export function Stepper({ derived }: Props) {
         <li
           key={`gap-${i}`}
           aria-hidden
-          className="mx-2 h-px w-6 bg-[var(--line-2)]"
+          className="mx-2 h-px w-8 bg-[var(--line-2)]"
         />,
       );
     }
@@ -57,7 +56,7 @@ export function Stepper({ derived }: Props) {
   });
 
   return (
-    <ol className="grid grid-cols-[1fr_auto_1fr_auto_1fr_auto_1fr] items-center gap-0">
+    <ol className="grid grid-cols-[1fr_auto_1fr_auto_1fr_auto_1fr_auto_1fr] items-center gap-0">
       {items}
     </ol>
   );
@@ -68,36 +67,51 @@ function Node({ node }: { node: Node }) {
     node.state === "active"
       ? node.red
         ? "shadow-[inset_0_0_0_1.5px_var(--red)]"
-        : "shadow-[inset_0_0_0_1.5px_var(--amber)]"
+        : node.brain
+          ? "shadow-[inset_0_0_0_1.5px_var(--ink-2)]"
+          : "shadow-[inset_0_0_0_1.5px_var(--amber)]"
       : "";
   const opacity = node.state === "locked" ? "opacity-40" : "";
-  const bg = node.state === "active" ? "bg-[var(--surface)]" : "";
+  const bg =
+    node.state === "active"
+      ? "bg-[var(--surface)]"
+      : node.brain
+        ? "bg-[var(--surface-2)]"
+        : "";
 
   return (
     <div
-      className={`flex items-center gap-3 rounded-[10px] px-3 py-2 transition-[background,box-shadow,opacity] duration-300 ${ring} ${opacity} ${bg}`}
+      className={`flex w-full items-center gap-3 rounded-[10px] px-3 py-[10px] transition-[background,box-shadow,opacity] duration-300 ${ring} ${opacity} ${bg}`}
     >
-      <Dot state={node.state} red={node.red} />
-      <div className="min-w-0">
-        <div className="truncate font-display text-[13px] font-semibold leading-tight text-[var(--ink)]">
-          {node.title}
-        </div>
-        <div className="truncate text-[10.5px] text-[var(--faint)]">
-          {node.role}
-        </div>
-      </div>
+      <Dot state={node.state} red={node.red} brain={node.brain} />
+      <span className="truncate font-display text-[13px] font-semibold leading-tight text-[var(--ink)]">
+        {node.title}
+      </span>
     </div>
   );
 }
 
-function Dot({ state, red }: { state: StepState; red?: boolean }) {
+function Dot({
+  state,
+  red,
+  brain,
+}: {
+  state: StepState;
+  red?: boolean;
+  brain?: boolean;
+}) {
   if (state === "active") {
-    const color = red ? "bg-[var(--red)]" : "bg-[var(--amber)]";
-    const pulse = red ? "" : "pinpoint-pulse-amber rounded-full";
+    const color = red
+      ? "bg-[var(--red)]"
+      : brain
+        ? "bg-[var(--ink-2)]"
+        : "bg-[var(--amber)]";
+    const pulse = red || brain ? "" : "pinpoint-pulse-amber rounded-full";
     return <span className={`h-2.5 w-2.5 rounded-full ${color} ${pulse}`} />;
   }
   if (state === "done") {
-    return <span className="h-2.5 w-2.5 rounded-full bg-[var(--green)]" />;
+    const color = brain ? "bg-[var(--ink-2)]" : "bg-[var(--green)]";
+    return <span className={`h-2.5 w-2.5 rounded-full ${color}`} />;
   }
   return <span className="h-2.5 w-2.5 rounded-full bg-[var(--line-2)]" />;
 }

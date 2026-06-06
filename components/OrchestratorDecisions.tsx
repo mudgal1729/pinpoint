@@ -1,4 +1,5 @@
 import { caseContext, type DecisionTone } from "@/lib/case";
+import { SectionLabel } from "./DetailHeader";
 
 const dotColor: Record<DecisionTone, string> = {
   amber: "bg-[var(--amber)]",
@@ -9,11 +10,9 @@ const dotColor: Record<DecisionTone, string> = {
 export function OrchestratorDecisions() {
   const decisions = caseContext.orchestratorDecisions;
   return (
-    <section className="border-t border-[var(--line)] bg-[var(--surface-2)] px-[22px] py-[16px]">
+    <section className="border-t border-[var(--line)] bg-[var(--surface-2)] px-[28px] py-[18px]">
       <div className="mb-3 flex items-baseline justify-between gap-3">
-        <span className="font-mono text-[10.5px] font-medium uppercase tracking-[0.13em] text-[var(--faint)]">
-          Orchestrator decisions
-        </span>
+        <SectionLabel>Orchestrator decisions</SectionLabel>
         <span className="text-[11.5px] text-[var(--muted)]">
           Computed before Agent 1; drives the agent&apos;s role and context.
         </span>
@@ -22,13 +21,13 @@ export function OrchestratorDecisions() {
         {decisions.map((d) => (
           <div
             key={d.key}
-            className="flex flex-col gap-[3px] rounded-[10px] border border-[var(--line-2)] bg-[var(--surface)] px-[11px] py-[9px]"
+            className="flex flex-col gap-[3px] rounded-[10px] border border-[var(--line-2)] bg-[var(--surface)] px-[12px] py-[10px]"
           >
             <div className="flex items-center gap-2">
               <span
                 className={`h-[6px] w-[6px] flex-none rounded-full ${dotColor[d.tone]}`}
               />
-              <span className="font-mono text-[9px] uppercase tracking-[0.07em] text-[var(--faint)]">
+              <span className="font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--faint)]">
                 {d.label}
               </span>
             </div>
