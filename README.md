@@ -1,6 +1,6 @@
 # Pinpoint
 
-**The agent that resolves a delivery location instead of cancelling the order.**
+**The agent that resolves a delivery location to avoid cancellations.**
 
 When a quick commerce order has a bad delivery location, today the system either cancels or burns a delivery partner's time on guesswork. Pinpoint does what a good ops person would do instead: it calls, it figures out exactly where, and it gets the order delivered.
 
@@ -15,12 +15,6 @@ When a quick commerce order has a bad delivery location, today the system either
 
 This is not a maps problem you fix with a better pin picker. It is an ambiguity problem. The easy agent confirms an address on a clean, scripted call; it breaks the moment the customer gives a landmark instead of coordinates, switches language, or does not know the spot. The hard part of the last mile is resolving where exactly under uncertainty, and failing safely when you cannot.
 
-## Impact
-
-- Recovers orders that are cancelled today purely for location reasons (the 1.5% baseline), and removes the partner to customer back and forth on the roughly 3x larger friction set.
-- Protects the relationship on gift orders, which are high intent and high lifetime value.
-- Scales across every low confidence order on the live stream, with humans reserved for the hard tail (the cases the agents cannot conclude on their own).
-- Frees delivery partners to focus on delivering, not on negotiating addresses over the phone.
 
 ## How it works (the real, production design)
 
