@@ -64,18 +64,18 @@ export const caseContext = {
   // display-only and hardcoded; in production each would be computed.
   orchestratorDecisions: [
     {
-      key: "ofse",
-      label: "Same-store fulfilment",
-      value: "No",
-      tone: "amber",
-      detail: "Corrected pin outside current store's catchment",
-    },
-    {
       key: "addressConfidence",
       label: "Address confidence",
       value: "Confirm role",
       tone: "amber",
       detail: "Text high, pin low; Agent 1 confirms, not gathers",
+    },
+    {
+      key: "ofse",
+      label: "Same-store fulfilment",
+      value: "No",
+      tone: "amber",
+      detail: "Corrected pin outside current store's catchment",
     },
     {
       key: "storeReassignment",
