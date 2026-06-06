@@ -28,6 +28,16 @@ function fallbackText(f: { label: string; detail: string }): string {
   return `${f.label} (${f.detail})`;
 }
 
+// TTS phonetic helper. ElevenLabs' Hindi voice tends to autocomplete
+// "rasmalai" (a compound noun) to the more common "rasgulla". Inserting
+// a space splits the syllables ras + malai, which the TTS reads
+// correctly and the model can no longer collapse to a different word.
+// The product name still comes from caseContext; this is a
+// pronunciation-only transform applied at the dynamic-variable boundary.
+function ttsExpand(text: string): string {
+  return text.replace(/rasmalai/gi, "ras malai");
+}
+
 function buildDynamicVariables(
   c: CaseContext,
 ): Record<string, string | number | boolean> {
@@ -35,21 +45,21 @@ function buildDynamicVariables(
   return {
     sender_name: c.sender.name,
     recipient_name: c.recipient.name,
-    items: c.order.items.join(", "),
+    items: ttsExpand(c.order.items.join(", ")),
     amount: c.order.amount,
     address_house_no: c.address.houseNo,
     address_landmark: c.address.landmark,
     address_area: c.address.area,
     address_city: c.address.city,
-    issue_summary: c.issue,
+    issue_summary: ttsExpand(c.issue),
     nearby_landmarks: c.nearbyLandmarks.join(", "),
     // The agent uses just the first nearby landmark as a single
     // proximity-check question instead of listing all three.
     primary_nearby_landmark: c.nearbyLandmarks[0],
-    order_edit_reason: c.orderEdit.reason,
-    fallback_1_text: fallbackText(f1),
-    fallback_2_text: fallbackText(f2),
-    fallback_3_text: fallbackText(f3),
+    order_edit_reason: ttsExpand(c.orderEdit.reason),
+    fallback_1_text: ttsExpand(fallbackText(f1)),
+    fallback_2_text: ttsExpand(fallbackText(f2)),
+    fallback_3_text: ttsExpand(fallbackText(f3)),
     // Agent 2 reads this; harmless to pass on Agent 1 too.
     sender_phone_last5: c.sender.phoneLast5,
   };
