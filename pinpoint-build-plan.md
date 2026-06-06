@@ -771,3 +771,69 @@ is left.
 **Next slice to start:** slice 0 continued (write `docs/sdk-notes.md`)
 in parallel with slice 1 (Next.js scaffold + dashboard shell). They do
 not block each other.
+
+### Session 2026-06-06, slice 0 continued (SDK notes)
+
+**Operator:** Claude (claude-opus-4-7)
+
+**Slice exit criterion met?**
+- Slice 0: Yes (pending commit). `docs/sdk-notes.md` now exists. The
+  build plan exists from the previous session. Both files are in the
+  tree; user still needs to `git add docs/sdk-notes.md && git commit`
+  to satisfy the "committed" wording of the slice 0 exit criterion.
+
+**Files added or changed:**
+- `docs/sdk-notes.md` (added): canonical reference for the ElevenLabs
+  Conv AI SDK call shapes Pinpoint depends on. Covers (a) browser-side
+  `Conversation.startSession` from `@elevenlabs/client`, (b) the
+  `dynamicVariables` option key and the rule that values must be
+  string/number/boolean only, (c) the `onDisconnect` callback name and
+  its optional `{ reason, code }` arg, (d) the signed-URL endpoint
+  `/v1/convai/conversation/get-signed-url` and its `signed_url`
+  response field, (e) the agent-create body shape with exact JSON
+  paths (`conversation_config.agent.prompt.prompt`, etc), (f) PATCH
+  semantics for slice 5's prompt iteration loop. Includes a section
+  listing exactly what to grep for if SDK field names ever churn.
+
+**Plan changes (if any):**
+- None. The build plan already specified slice 0 needed
+  `docs/sdk-notes.md`; this session just wrote it.
+
+**Gotchas for the next session (slice 1 + slice 2 Half B):**
+- Browser SDK casing trap: the SDK options bag uses camelCase
+  (`signedUrl`, `dynamicVariables`), but the prompt placeholders and
+  the wire protocol both use snake_case (`{{sender_name}}`,
+  `dynamic_variables`). The values in `dynamicVariables` must be the
+  snake_case keys our prompts reference, even though the option key
+  itself is camelCase. Mixing this up means placeholders go unfilled
+  and the agent literally says "namaste {{sender_name}}".
+- npm package name is `@elevenlabs/client` (the new namespace), not
+  `@11labs/client` (the legacy one). When slice 1 sets up
+  `package.json`, install `@elevenlabs/client` directly.
+- Signed URLs expire 15 minutes after issuance. Per click of Trigger
+  Agent N, fetch a fresh one from `/api/signed-url?agent=...` -- do
+  not cache.
+- The signed-URL endpoint response field is `signed_url` (snake_case).
+  Our API route normalises to `signedUrl` (camelCase) on the way out
+  so client code stays idiomatic; do not strip that normalisation.
+- `onDisconnect` fires on **any** end (operator clicked end, server
+  closed, network drop, URL expired mid-stream). It will fire after
+  Force Callback too, which sets status to CALLBACK_SCHEDULED. The
+  callback must not blindly overwrite back to AGENT*_DONE in that
+  case. Use a ref (`forcedCallback.current = true` before calling
+  `endSession()`) and skip the status update inside `onDisconnect`
+  when the ref is set.
+- Agent-create JSON path traps to watch: prompt lives at
+  `conversation_config.agent.prompt.prompt` (nested twice), not at
+  `conversation_config.agent.prompt` and not at
+  `agent_config.prompt.prompt`. The schema names a model
+  `AgentConfigAPIModel` which is misleading -- the JSON key is still
+  `conversation_config`. Our setup script is correct on this.
+- TTS model currently set to `eleven_turbo_v2_5` in the setup script.
+  `eleven_flash_v2_5` is now ElevenLabs' recommended model for live
+  voice agents (lower latency). Worth A/B-testing in slice 5; flag if
+  Hindi quality is comparable.
+
+**Next slice to start:** slice 1 (Next.js scaffold + dashboard shell)
+followed by slice 2 Half B (signed-URL API route). Both are now
+unblocked.
