@@ -7,7 +7,6 @@ import { DemoCase } from "@/components/DemoCase";
 import { IssueMap } from "@/components/IssueMap";
 import { OrchestratorDecisions } from "@/components/OrchestratorDecisions";
 import { Problem } from "@/components/Problem";
-import { Stepper } from "@/components/Stepper";
 import { Twist } from "@/components/Twist";
 import { caseContext } from "@/lib/case";
 import {
@@ -146,12 +145,10 @@ export default function DashboardPage() {
 
   return (
     <main className="w-full px-6 py-6 lg:px-10 lg:py-8">
-      {/* PART 1: heading + flow, no box. Brand mark, wordmark, order id,
-          state badge, intro paragraph, and the live flow stepper. */}
-      <BrandHeader orderId={orderId} derived={derived} />
-      <div className="mb-7 mt-6">
-        <Stepper derived={derived} />
-      </div>
+      {/* PART 1: heading + flow, no box. Brand mark, wordmark, subtitle
+          paragraph, and the flow stepper, all grouped as one heading
+          block. Order id and state badge intentionally not shown here. */}
+      <BrandHeader derived={derived} />
 
       {/* PART 2: Orchestrator decisions, self-contained box. */}
       <section className={`${BOX_CLASSES} mb-6`}>
