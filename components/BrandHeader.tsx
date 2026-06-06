@@ -30,7 +30,7 @@ export function BrandHeader({ derived }: Props) {
           </strong>
           , and escalates to a human if it can&apos;t reach certainty.
         </p>
-        <div className="mt-5">
+        <div className="mt-3">
           <Stepper derived={derived} />
         </div>
       </div>

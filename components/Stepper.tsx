@@ -9,6 +9,7 @@ type Node = {
   // The orchestrator node carries a subtle ink-2 tint to mark it as the
   // brain that owns the case, even when settled.
   brain?: boolean;
+  sublabel?: string;
 };
 
 export function Stepper({ derived }: Props) {
@@ -29,6 +30,7 @@ export function Stepper({ derived }: Props) {
     {
       title: "Recipient call",
       state: derived.stepper.receiver,
+      sublabel: "if gift order",
     },
     {
       title: derived.stepper.endLabel,
@@ -45,11 +47,9 @@ export function Stepper({ derived }: Props) {
     ];
     if (i < nodes.length - 1) {
       cells.push(
-        <li
-          key={`gap-${i}`}
-          aria-hidden
-          className="mx-2 h-px w-8 bg-[var(--line-2)]"
-        />,
+        <li key={`gap-${i}`} aria-hidden className="mx-2 flex items-center">
+          <Arrow />
+        </li>,
       );
     }
     return cells;
@@ -59,6 +59,24 @@ export function Stepper({ derived }: Props) {
     <ol className="grid grid-cols-[1fr_auto_1fr_auto_1fr_auto_1fr_auto_1fr] items-center gap-0">
       {items}
     </ol>
+  );
+}
+
+function Arrow() {
+  return (
+    <svg
+      viewBox="0 0 32 8"
+      className="h-2 w-8 text-[var(--line-2)]"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M0 4 H30" />
+      <path d="M26 1 L30 4 L26 7" />
+    </svg>
   );
 }
 
@@ -84,9 +102,16 @@ function Node({ node }: { node: Node }) {
       className={`flex w-full items-center gap-3 rounded-[10px] px-3 py-[10px] transition-[background,box-shadow,opacity] duration-300 ${ring} ${opacity} ${bg}`}
     >
       <Dot state={node.state} red={node.red} brain={node.brain} />
-      <span className="truncate font-display text-[13px] font-semibold leading-tight text-[var(--ink)]">
-        {node.title}
-      </span>
+      <div className="min-w-0 flex flex-col gap-[1px]">
+        <span className="truncate font-display text-[13px] font-semibold leading-tight text-[var(--ink)]">
+          {node.title}
+        </span>
+        {node.sublabel && (
+          <span className="truncate font-mono text-[9.5px] uppercase tracking-[0.07em] text-[var(--faint)]">
+            {node.sublabel}
+          </span>
+        )}
+      </div>
     </div>
   );
 }
