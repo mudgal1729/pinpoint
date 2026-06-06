@@ -32,7 +32,7 @@ export function DemoCase({
   const tone = tonePalette[derived.banner.tone];
 
   return (
-    <section className="border-t border-[var(--line)] bg-[var(--surface-2)] px-[28px] py-[20px]">
+    <div className="px-[28px] py-[22px]">
       {/* Top row: section label + operator actions */}
       <div className="mb-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
         <SectionLabel>Demo case</SectionLabel>
@@ -96,7 +96,7 @@ export function DemoCase({
           , {address.area}
         </div>
       </div>
-    </section>
+    </div>
   );
 }
 

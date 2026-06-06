@@ -7,11 +7,14 @@ const dotColor: Record<DecisionTone, string> = {
   neutral: "bg-[var(--line-2)]",
 };
 
+// Renders Part 2's content. The outer box (border / shadow / rounded /
+// surface) is provided by app/page.tsx; this component owns its
+// internal padding and layout only.
 export function OrchestratorDecisions() {
   const decisions = caseContext.orchestratorDecisions;
   return (
-    <section className="border-t border-[var(--line)] bg-[var(--surface-2)] px-[28px] py-[18px]">
-      <div className="mb-3 flex items-baseline justify-between gap-3">
+    <div className="px-[28px] py-[22px]">
+      <div className="mb-4 flex items-baseline justify-between gap-3">
         <SectionLabel>Orchestrator decisions</SectionLabel>
         <span className="text-[11.5px] text-[var(--muted)]">
           Computed before Agent 1; drives the agent&apos;s role and context.
@@ -21,7 +24,7 @@ export function OrchestratorDecisions() {
         {decisions.map((d) => (
           <div
             key={d.key}
-            className="flex flex-col gap-[3px] rounded-[10px] border border-[var(--line-2)] bg-[var(--surface)] px-[12px] py-[10px]"
+            className="flex flex-col gap-[3px] rounded-[10px] border border-[var(--line-2)] bg-[var(--surface-2)] px-[12px] py-[10px]"
           >
             <div className="flex items-center gap-2">
               <span
@@ -40,6 +43,6 @@ export function OrchestratorDecisions() {
           </div>
         ))}
       </div>
-    </section>
+    </div>
   );
 }

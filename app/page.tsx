@@ -26,6 +26,11 @@ function newOrderId() {
 // Visually-stable placeholder for SSR so hydration is clean.
 const ORDER_ID_PLACEHOLDER = "OD———————————";
 
+// Shared box chrome for Part 2 and Part 3. The two boxes are visually
+// identical containers, so coherent design = one definition reused.
+const BOX_CLASSES =
+  "overflow-hidden rounded-[var(--r-lg)] border border-[var(--line)] bg-[var(--surface)] shadow-[var(--shadow)]";
+
 export default function DashboardPage() {
   const [status, setStatus] = useState<Status>("NEW");
   const [orderId, setOrderId] = useState<string>(ORDER_ID_PLACEHOLDER);
@@ -141,15 +146,23 @@ export default function DashboardPage() {
 
   return (
     <main className="w-full px-6 py-6 lg:px-10 lg:py-8">
+      {/* PART 1: heading + flow, no box. Brand mark, wordmark, order id,
+          state badge, intro paragraph, and the live flow stepper. */}
       <BrandHeader orderId={orderId} derived={derived} />
+      <div className="mb-7 mt-6">
+        <Stepper derived={derived} />
+      </div>
 
-      <section className="overflow-hidden rounded-[var(--r-lg)] border border-[var(--line)] bg-[var(--surface)] shadow-[var(--shadow)]">
-        <section className="px-[28px] py-[20px]">
-          <Stepper derived={derived} />
-        </section>
-
+      {/* PART 2: Orchestrator decisions, self-contained box. */}
+      <section className={`${BOX_CLASSES} mb-6`}>
         <OrchestratorDecisions />
+      </section>
 
+      {/* PART 3: Demo case workspace, self-contained box. Contains the
+          merged demo-case row (CTAs + status + order facts), the
+          map/problem/twist body, and the agents grid, separated by
+          consistent border-t lines that span the box edge-to-edge. */}
+      <section className={BOX_CLASSES}>
         <DemoCase
           derived={derived}
           onCallSender={handleCallSender}
@@ -176,7 +189,7 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
-          <div className="p-[20px_28px]">
+          <div className="p-[22px_28px]">
             <Problem />
             <Twist option1Chosen={derived.option1Chosen} />
           </div>

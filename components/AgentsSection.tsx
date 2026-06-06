@@ -62,7 +62,7 @@ type Props = { derived: DerivedState };
 export function AgentsSection({ derived }: Props) {
   return (
     <section className="border-t border-[var(--line)]">
-      <header className="flex items-center justify-between px-[28px] pt-[16px] pb-[8px]">
+      <header className="flex items-center justify-between px-[28px] pt-[18px] pb-[10px]">
         <SectionLabel>Agents on this case</SectionLabel>
         <span className="text-[11.5px] text-[var(--muted)]">
           2 voice agents, Hindi
