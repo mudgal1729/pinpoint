@@ -1,7 +1,7 @@
 import { caseContext } from "@/lib/case";
 import type { DerivedState } from "@/lib/status";
 import { AgentCard } from "./AgentCard";
-import { SectionLabel } from "./DetailHeader";
+import { SectionLabel } from "@/components/SectionLabel";
 
 const AGENT_1_GOALS = [
   {

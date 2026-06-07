@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { AgentsSection } from "@/components/AgentsSection";
-import { BrandHeader } from "@/components/BrandHeader";
-import { DemoCase } from "@/components/DemoCase";
-import { IssueMap } from "@/components/IssueMap";
-import { OrchestratorDecisions } from "@/components/OrchestratorDecisions";
-import { Problem } from "@/components/Problem";
-import { Twist } from "@/components/Twist";
+import { BrandHeader } from "@/components/chrome/BrandHeader";
+import { OrchestratorDecisions } from "@/components/orchestrator/OrchestratorDecisions";
+import { AgentsSection } from "@/components/case/AgentsSection";
+import { DemoCase } from "@/components/case/DemoCase";
+import { IssueMap } from "@/components/case/IssueMap";
+import { Problem } from "@/components/case/Problem";
+import { Twist } from "@/components/case/Twist";
 import { caseContext } from "@/lib/case";
 import {
   startReceiverSession,

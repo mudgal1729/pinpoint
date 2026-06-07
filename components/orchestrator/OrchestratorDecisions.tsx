@@ -1,5 +1,5 @@
 import { caseContext, type DecisionTone } from "@/lib/case";
-import { SectionLabel } from "./DetailHeader";
+import { SectionLabel } from "@/components/SectionLabel";
 
 const dotColor: Record<DecisionTone, string> = {
   amber: "bg-[var(--amber)]",

@@ -4,7 +4,7 @@
 > names, endpoint paths, and SDK call shapes that Pinpoint V0 depends on.
 > If the SDK or the docs change in a way that breaks our integration,
 > update this file in the same PR and log the change in
-> `pinpoint-build-plan.md` section 15.
+> `docs/build-log.md` section 15.
 >
 > All sources are linked at the bottom. Pulled from the live docs on
 > 2026-06-06. The product was rebranded "Conversational AI" -> "ElevenAgents"

@@ -5,8 +5,8 @@
 // The enum names below are kept from the original V0 scaffold for slice 4
 // coexistence; the new operator-console UI maps them to the design
 // vocabulary (idle / running1 / handoff / running2 / resolved / callback)
-// via the derive() helper at the bottom of this file. See build plan
-// section 5 for the full state table.
+// via the derive() helper at the bottom of this file. See
+// docs/architecture.md section 5 for the full state table.
 
 export type Status =
   | "NEW"

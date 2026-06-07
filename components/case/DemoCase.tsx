@@ -2,7 +2,7 @@
 
 import { caseContext } from "@/lib/case";
 import type { DerivedState } from "@/lib/status";
-import { SectionLabel } from "./DetailHeader";
+import { SectionLabel } from "@/components/SectionLabel";
 
 type Props = {
   derived: DerivedState;
